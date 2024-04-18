@@ -18,6 +18,17 @@ public class Customer {
     private LocalDate birthDate;
     private String email;
 
+    public Customer() {
+    }
+
+    public Customer(Long id, String firstName, String familyName, LocalDate birthDate, String email) {
+        this.id = id;
+        this.firstName = firstName;
+        this.familyName = familyName;
+        this.birthDate = birthDate;
+        this.email = email;
+    }
+
     public Long getId() {
         return id;
     }

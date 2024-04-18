@@ -11,5 +11,4 @@ public class ComputerStoreBackEnd1Application {
 	public static void main(String[] args) {
 		SpringApplication.run(ComputerStoreBackEnd1Application.class, args);
 	}
-
 }
