@@ -8,3 +8,5 @@ CREATE TABLE employees (
 -- Insert initial data
 INSERT INTO employees (id, name, salary) VALUES (1, 'John', 50000);
 INSERT INTO employees (id, name, salary) VALUES (2, 'Alice', 60000);
+
+SELECT * FROM employees;
