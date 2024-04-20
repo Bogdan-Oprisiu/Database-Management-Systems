@@ -1,10 +1,16 @@
--- SetUp script
-CREATE TABLE orders (
-    id INT PRIMARY KEY,
-    product_id INT,
-    quantity INT
+USE CONCURENCY_ISSUES;
+
+CREATE TABLE Phantom_Reads (
+	id INT PRIMARY KEY,
+	field INT
 );
 
--- Insert initial data
-INSERT INTO orders (id, product_id, quantity) VALUES (1, 1, 5);
-INSERT INTO orders (id, product_id, quantity) VALUES (2, 2, 3);
+INSERT INTO Phantom_Reads (id, field) VALUES
+(1, 1),
+(2, 69);
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT * FROM Phantom_Reads;
+
+DROP TABLE Phantom_Reads;

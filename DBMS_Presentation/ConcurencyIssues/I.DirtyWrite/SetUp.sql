@@ -1,17 +1,16 @@
 USE CONCURENCY_ISSUES;
 
-CREATE TABLE Person (
-    PersonID INT PRIMARY KEY,
-    FirstName VARCHAR(50),
-    LastName VARCHAR(50)
+CREATE TABLE Dirty_Write (
+	id INT PRIMARY KEY,
+	field INT
 );
 
-INSERT INTO Person (PersonID, FirstName, LastName) VALUES
-(1, 'Aaron', 'Hotchner'),
-(2, 'Aaron', 'Reid'),
-(3, 'Aaron', 'Morgan'),
-(4, 'Emily', 'Prentiss');
+INSERT INTO Dirty_Write (id, field) VALUES
+(1, 1),
+(2, 69);
 
 SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
-DROP TABLE Person;
+SELECT * FROM Dirty_Write;
+
+DROP TABLE Dirty_Write;

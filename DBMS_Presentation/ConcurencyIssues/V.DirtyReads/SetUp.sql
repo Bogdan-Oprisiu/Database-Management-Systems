@@ -1,12 +1,16 @@
--- SetUp script
-CREATE TABLE employees (
-    id INT PRIMARY KEY,
-    name VARCHAR(50),
-    salary INT
+USE CONCURENCY_ISSUES;
+
+CREATE TABLE Dirty_Read (
+	id INT PRIMARY KEY,
+	field INT
 );
 
--- Insert initial data
-INSERT INTO employees (id, name, salary) VALUES (1, 'John', 50000);
-INSERT INTO employees (id, name, salary) VALUES (2, 'Alice', 60000);
+INSERT INTO Dirty_Read (id, field) VALUES
+(1, 1),
+(2, 69);
 
-SELECT * FROM employees;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT * FROM Dirty_Read;
+
+DROP TABLE Dirty_Read;

@@ -1,14 +1,14 @@
--- Transaction 1
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+USE CONCURENCY_ISSUES;
+
+SELECT * FROM Dirty_Read;
+
 BEGIN TRANSACTION;
+ 
+WAITFOR DELAY '00:00:05.000';
 
--- Read all employees
-SELECT * FROM employees;
+SELECT * FROM Dirty_Read;
 
--- Introduce a delay
-WAITFOR DELAY '00:00:05';
-
--- Read all employees
-SELECT * FROM employees;
-
--- Commit the transaction
+WAITFOR DELAY '00:00:05.000';
+ 
 COMMIT;

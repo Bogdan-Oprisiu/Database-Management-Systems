@@ -3,10 +3,12 @@ USE CONCURENCY_ISSUES;
 
 BEGIN TRANSACTION;
  
-SELECT * FROM Unrepeatable_Reads;
+SELECT COUNT(*) FROM Phantom_Reads
+WHERE Field = 69;
  
 WAITFOR DELAY '00:00:05.000';
 
-SELECT * FROM Unrepeatable_Reads;
+SELECT COUNT(*) FROM Phantom_Reads
+WHERE Field = 69;
  
 COMMIT;

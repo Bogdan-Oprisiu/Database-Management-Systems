@@ -1,15 +1,16 @@
 USE CONCURENCY_ISSUES;
 
-CREATE TABLE BankAccounts(
-    AccountId		INT IDENTITY(1,1),
-    BalanceAmount   INT
+CREATE TABLE Lost_Update (
+	id INT PRIMARY KEY,
+	field INT
 );
- 
-insert into BankAccounts (
-    BalanceAmount
-)
-SELECT 1500;
 
-SELECT * FROM BankAccounts
+INSERT INTO Lost_Update (id, field) VALUES
+(1, 1),
+(2, 69);
 
-DROP TABLE BankAccounts ;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT * FROM Lost_Update;
+
+DROP TABLE Lost_Update;

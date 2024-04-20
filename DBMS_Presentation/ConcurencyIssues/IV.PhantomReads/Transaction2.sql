@@ -1,8 +1,12 @@
--- Transaction 2
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+USE CONCURENCY_ISSUES;
+
 BEGIN TRANSACTION;
 
--- Insert a new order with a quantity of 6
-INSERT INTO orders (id, product_id, quantity) VALUES (3, 1, 6);
+UPDATE Phantom_Reads
+SET Field = Field + 11
+WHERE ID = 2;
 
--- Commit the transaction
+SELECT * FROM Phantom_Reads;
+
 COMMIT;

@@ -1,8 +1,14 @@
--- Transaction 2
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+USE CONCURENCY_ISSUES;
+
 BEGIN TRANSACTION;
 
--- Update Alice's salary
-UPDATE employees SET salary = 100000 WHERE id = 2;
+UPDATE Dirty_Read
+SET Field = 11
+WHERE ID = 2;
 
--- Commit the transaction
+WAITFOR DELAY '00:00:05.000';
+
+SELECT * FROM Dirty_Read;
+
 COMMIT;

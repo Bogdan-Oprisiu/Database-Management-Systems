@@ -3,10 +3,10 @@ USE CONCURENCY_ISSUES;
 
 BEGIN TRANSACTION;
 
-UPDATE Unrepeatable_Reads
+UPDATE Lost_Update
 SET Field = Field + 11
 WHERE ID = 2;
 
-SELECT * FROM Unrepeatable_Reads;
+SELECT * FROM Lost_Update;
 
 COMMIT;

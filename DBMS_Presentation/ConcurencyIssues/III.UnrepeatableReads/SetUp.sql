@@ -1,9 +1,16 @@
--- SetUp script
-CREATE TABLE account (
-    id INT PRIMARY KEY,
-    balance INT
+USE CONCURENCY_ISSUES;
+
+CREATE TABLE Unrepeatable_Reads (
+	id INT PRIMARY KEY,
+	field INT
 );
 
-INSERT INTO account (id, balance) VALUES (1, 1000);
+INSERT INTO Unrepeatable_Reads (id, field) VALUES
+(1, 1),
+(2, 69);
 
-SELECT * FROM account;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+SELECT * FROM Unrepeatable_Reads;
+
+DROP TABLE Unrepeatable_Reads;
