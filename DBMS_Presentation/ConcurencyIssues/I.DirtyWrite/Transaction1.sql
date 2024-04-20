@@ -4,7 +4,7 @@ SELECT
     COUNT(DISTINCT LastName) DistinctLastNameBeforeBeginTran
 FROM Person
 WHERE FirstName = 'Aaron';
- 
+
 BEGIN TRANSACTION;
  
 UPDATE Person
