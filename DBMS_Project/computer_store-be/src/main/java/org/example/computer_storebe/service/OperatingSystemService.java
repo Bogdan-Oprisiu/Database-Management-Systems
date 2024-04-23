@@ -31,4 +31,16 @@ public class OperatingSystemService {
     public void deleteOperatingSystem(Long id) {
         operatingSystemRepository.deleteById(id);
     }
+
+    public OperatingSystem updateOperatingSystem(Long id, OperatingSystem updatedOperatingSystem) {
+        OperatingSystem existingOperatingSystem = operatingSystemRepository.findById(id).orElse(null);
+        if (existingOperatingSystem != null) {
+            // Update the existing operating system with the new data
+            existingOperatingSystem.setOsName(updatedOperatingSystem.getOsName());
+            existingOperatingSystem.setOsVersion(updatedOperatingSystem.getOsVersion());
+            // Save and return the updated operating system
+            return operatingSystemRepository.save(existingOperatingSystem);
+        }
+        return null; // Return null if the operating system with the given id doesn't exist
+    }
 }

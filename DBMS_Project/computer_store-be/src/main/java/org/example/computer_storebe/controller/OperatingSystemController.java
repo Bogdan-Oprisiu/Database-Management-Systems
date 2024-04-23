@@ -34,9 +34,11 @@ public class OperatingSystemController {
     }
 
     @PutMapping("/{id}")
-    public OperatingSystem updateOperatingSystem(@PathVariable Long id, @RequestBody OperatingSystem operatingSystem) {
-        operatingSystem.setId(id);
-        return operatingSystemService.saveOperatingSystem(operatingSystem);
+    public OperatingSystem updateOperatingSystem(
+            @PathVariable Long id,
+            @RequestBody OperatingSystem updatedOperatingSystem
+    ) {
+        return operatingSystemService.updateOperatingSystem(id, updatedOperatingSystem);
     }
 
     @DeleteMapping("/{id}")

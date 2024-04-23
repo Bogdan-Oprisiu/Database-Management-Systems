@@ -33,9 +33,11 @@ public class ComputerManufacturerController {
     }
 
     @PutMapping("/{id}")
-    public ComputerManufacturer updateManufacturer(@PathVariable Long id, @RequestBody ComputerManufacturer manufacturer) {
-        manufacturer.setId(id);
-        return manufacturerService.saveManufacturer(manufacturer);
+    public ComputerManufacturer updateManufacturer(
+            @PathVariable Long id,
+            @RequestBody ComputerManufacturer updatedManufacturer
+    ) {
+        return manufacturerService.updateManufacturer(id, updatedManufacturer);
     }
 
     @DeleteMapping("/{id}")

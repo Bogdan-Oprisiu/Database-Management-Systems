@@ -34,10 +34,13 @@ public class ComputerCategoryController {
     }
 
     @PutMapping("/{id}")
-    public ComputerCategory updateCategory(@PathVariable Long id, @RequestBody ComputerCategory category) {
-        category.setId(id);
-        return categoryService.saveCategory(category);
+    public ComputerCategory updateCategory(
+            @PathVariable Long id,
+            @RequestBody ComputerCategory updatedCategory
+    ) {
+        return categoryService.updateCategory(id, updatedCategory);
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteCategory(@PathVariable Long id) {

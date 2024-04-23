@@ -33,10 +33,13 @@ public class ComputerController {
     }
 
     @PutMapping("/{id}")
-    public Computer updateComputer(@PathVariable Long id, @RequestBody Computer computer) {
-        computer.setId(id);
-        return computerService.saveComputer(computer);
+    public Computer updateComputer(
+            @PathVariable Long id,
+            @RequestBody Computer updatedComputer
+    ) {
+        return computerService.updateComputer(id, updatedComputer);
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteComputer(@PathVariable Long id) {
