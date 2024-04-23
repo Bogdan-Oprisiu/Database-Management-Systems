@@ -1,8 +1,6 @@
 package concurrency_issues;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.*;
-import java.util.Random;
 
 public class ConcurrencyIssues {
     public static void main(String[] args) {
@@ -15,13 +13,17 @@ public class ConcurrencyIssues {
 //            printOperatingSystemData(connection);
             System.out.println();
 
-            System.out.println("Dirty read:");
-            DirtyRead dirtyRead = new DirtyRead();
-            dirtyRead.dirtyRead(connection);
+//            System.out.println("Dirty read:");
+//            DirtyRead dirtyRead = new DirtyRead();
+//            dirtyRead.dirtyRead(connection);
 
 //            System.out.println("Dirty write: ");
 //            DirtyWrite dirtyWrite = new DirtyWrite();
 //            dirtyWrite.dirtyWrite(connection);
+
+            System.out.println("Lost update: ");
+            LostUpdate lostUpdate = new LostUpdate();
+            lostUpdate.lostUpdate(connection);
 
             System.out.println();
 //            printOperatingSystemData(connection);

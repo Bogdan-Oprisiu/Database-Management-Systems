@@ -1,59 +1,69 @@
 package concurrency_issues;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static concurrency_issues.Utils.printOperatingSystemData;
 import static concurrency_issues.Utils.setReadUncommittedIsolation;
 
-public class DirtyWrite {
-
+public class LostUpdate {
     private final Lock lock = new ReentrantLock();
+    private final Condition thread1Finished = lock.newCondition();
+    private boolean thread1Completed = false;
 
-    public void dirtyWrite(Connection connection) {
+    public void lostUpdate(Connection connection) throws SQLException {
         Thread updateThread1 = new Thread(() -> {
             try {
                 Statement statement = connection.createStatement();
                 setReadUncommittedIsolation(connection);
-                lock.lock(); // Acquire the lock
-                printOperatingSystemData(connection, "updateThread1");
                 // Update the operating system version
-                String updateQuery = "UPDATE operating_system SET os_version = 15 WHERE id = 100000001";
+                String updateQuery = "UPDATE operating_system SET os_version = CONCAT(operating_system.os_version, '1') WHERE id = 100000001";
+                lock.lock(); // Acquire the lock before updating
                 int rowsUpdated = statement.executeUpdate(updateQuery);
-                // Wait for 5 seconds
-                Thread.sleep(5000);
                 printOperatingSystemData(connection, "updateThread1");
+                Thread.sleep(1000);
+                thread1Completed = true;
+                thread1Finished.signal(); // Signal that thread1 has completed
+                // Wait for thread2 to finish
+                while (!thread1Completed) {
+                    thread1Finished.await();
+                }
+                printOperatingSystemData(connection, "updateThread1");
+                Thread.sleep(1000);
             } catch (SQLException | InterruptedException e) {
                 throw new RuntimeException(e);
             } finally {
-                lock.unlock(); // Release the lock in the finally block
+                lock.unlock(); // Release the lock
             }
         });
-
 
         Thread updateThread2 = new Thread(() -> {
             try {
                 Statement statement = connection.createStatement();
                 setReadUncommittedIsolation(connection);
-                // Wait for the first thread to unlock
+                // Start locked until the first thread updates and unlocks
                 lock.lock();
+                // Wait for thread1 to complete
+                while (!thread1Completed) {
+                    thread1Finished.await();
+                }
                 // Update the operating system version
-                String updateQuery = "UPDATE operating_system SET os_version = 21 WHERE id = 100000001";
+                String updateQuery = "UPDATE operating_system SET os_version = 'Ubuntu' WHERE operating_system.os_version LIKE 'Fedora%'";
                 int rowsUpdated = statement.executeUpdate(updateQuery);
                 printOperatingSystemData(connection, "updateThread2");
-
-            } catch (SQLException e) {
+                Thread.sleep(1000);
+            } catch (SQLException | InterruptedException e) {
                 throw new RuntimeException(e);
             } finally {
-                lock.unlock();
+                lock.unlock(); // Unlock for the first thread to continue
             }
         });
 
-        // Start the threads
+        // Start the threads in the desired order
         updateThread1.start();
         updateThread2.start();
 
@@ -64,5 +74,6 @@ public class DirtyWrite {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        printOperatingSystemData(connection, "End");
     }
 }

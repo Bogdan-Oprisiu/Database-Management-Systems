@@ -4,6 +4,8 @@ import java.sql.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static concurrency_issues.Utils.printOperatingSystemData;
+
 public class DirtyRead {
     private final Lock updateLock = new ReentrantLock();
     private final Lock readLock = new ReentrantLock();
@@ -71,21 +73,6 @@ public class DirtyRead {
             readThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-    }
-
-    private static void printOperatingSystemData(Connection connection, String threadName) throws SQLException {
-        String selectQuery = "SELECT * FROM operating_system";
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(selectQuery);
-            System.out.println(threadName);
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String osName = resultSet.getString("os_name");
-                String osVersion = resultSet.getString("os_version"); // Retrieve as string
-                System.out.println("ID: " + id + ", Name: " + osName + ", Version: " + osVersion);
-            }
-            System.out.println();
         }
     }
 }
