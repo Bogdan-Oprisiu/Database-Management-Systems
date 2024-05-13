@@ -23,11 +23,11 @@ def transaction2_dirty_write():
     try:
         with userService.engine.begin() as connection:
             # use FOR UPDATE to acquire a row-level lock on the user record
-            query = text("SELECT * FROM user WHERE user_id = :user_id FOR UPDATE")
+            query = text("SELECT * FROM _user WHERE user_id = :user_id FOR UPDATE")
             connection.execute(query, {"user_id": user_id})
 
             # update the user's first name
-            query = text("UPDATE user SET first_name = 'Jonathan' WHERE user_id = :user_id")
+            query = text("UPDATE _user SET first_name = 'Jonathan' WHERE user_id = :user_id")
             connection.execute(query, {"user_id": user_id})
 
         return jsonify({'success': True}), 200

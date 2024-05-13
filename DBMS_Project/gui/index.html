@@ -8,6 +8,15 @@
     <link rel="stylesheet" type="text/css" href="dbms-gui.css">
 </head>
 <body>
+    <div id="transactionResults" style="padding: 20px; border: 1px solid #ccc; margin-top: 20px;">
+        <h3>Transaction Results:</h3>
+        <pre id="resultsContainer"></pre>
+    </div>
+
+    <div>
+        <input type="checkbox" id="lockCheckbox1"> Use Locking <br>
+    </div>
+
     <div class="button-container">
         <!-- Dirty Write -->
         <div class="button-description-container">
@@ -70,6 +79,7 @@
             <div class="button-box">
                 User ID: <input type="text" id="userIdInput5" placeholder="Enter User ID" />
                 <button class="styled-button" onclick="phantom_read(getUserId('userIdInput5'))">Phantom Read</button>
+                <input type="checkbox" id="lockCheckbox1"> Use Locking <br>
                 <a href="javascript:void(0);" onclick="toggleDetails('phantom-read-details', 'phantom-read-toggle')" class="show-details" id="phantom-read-toggle">Show Details</a>
             </div>
             <div>
@@ -90,7 +100,12 @@
                 alert('Please enter a User ID for Dirty Write.');
                 return;
             }
-            performRequest(userId, 'transaction1-dirty-write');
+            if(document.getElementById('lockCheckbox1').checked) {
+                performRequest(userId, 'transaction1-dirty-write-locking');
+            } else {
+                performRequest(userId, 'transaction1-dirty-write');
+            }
+            
         }
 
         async function lost_update(userId) {
@@ -98,7 +113,11 @@
                 alert('Please enter a User ID for Lost Update.');
                 return;
             }
-            performRequest(userId, 'transaction1-lost-update');
+            if(document.getElementById('lockCheckbox1').checked) {
+                performRequest(userId, 'transaction1-lost-update-locking');
+            } else {
+                performRequest(userId, 'transaction1-lost-update');
+            }
         }
 
         async function unrepeatable_reads(userId) {
@@ -106,7 +125,11 @@
                 alert('Please enter a User ID for Unrepeatable Reads.');
                 return;
             }
-            performRequest(userId, 'transaction1-unrepeatable-reads');
+            if(document.getElementById('lockCheckbox1').checked) {
+                performRequest(userId, 'transaction1-unrepeatable-reads-locking');
+            } else {
+                performRequest(userId, 'transaction1-unrepeatable-reads');
+            }
         }
 
         async function dirty_read(userId) {
@@ -114,7 +137,11 @@
                 alert('Please enter a User ID for Dirty Read.');
                 return;
             }
-            performRequest(userId, 'transaction1-dirty-read');
+            if(document.getElementById('lockCheckbox1').checked) {
+                performRequest(userId, 'transaction1-dirty-read-locking');
+            } else {
+                performRequest(userId, 'transaction1-dirty-read');
+            }
         }
 
         async function phantom_read(userId) {
@@ -122,7 +149,11 @@
                 alert('Please enter a User ID for Phantom Read.');
                 return;
             }
-            performRequest(userId, 'transaction1-phantom-read');
+            if(document.getElementById('lockCheckbox1').checked) {
+                performRequest(userId, 'transaction1-phantom-read-locking');
+            } else {
+                performRequest(userId, 'transaction1-phantom-read');
+            }
         }
 
         async function performRequest(userId, endpoint) {
@@ -130,15 +161,18 @@
                 const response = await fetch(`http://localhost:8060/concurrency-issues-java/${endpoint}?userId=${userId}`, {
                     method: 'POST'
                 });
-
+            
                 if (response.ok) {
                     const data = await response.json();
                     console.log(data);
+                    document.getElementById('resultsContainer').textContent = JSON.stringify(data, null, 2);  // Format JSON for display
                 } else {
                     console.error(`Request failed with status ${response.status}`);
+                    document.getElementById('resultsContainer').textContent = `Failed to fetch data: ${response.status}`;
                 }
             } catch (error) {
-                console.error('Error:', error);
+            console.error('Error:', error);
+            document.getElementById('resultsContainer').textContent = `Error: ${error.message}`;
             }
         }
 

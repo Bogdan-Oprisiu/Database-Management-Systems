@@ -34,15 +34,13 @@ def lost_update():
     session = Session()
     user_id = request.json.get('user_id')
     try:
-        # Start transaction
         session.begin()
-        # Lock the row to prevent other transactions from modifying it concurrently
-        user = session.execute(text("SELECT * FROM _user WHERE user_id = :user_id FOR UPDATE"), {'user_id': user_id}).fetchone()
+        user = session.execute(text("SELECT * FROM _user WHERE user_id = :user_id FOR UPDATE"),
+                               {'user_id': user_id}).fetchone()
         if user:
-            # Simulate processing time
             time.sleep(5)
-            # Update the user
-            session.execute(text("UPDATE _user SET last_name = 'LostUpdate' WHERE user_id = :user_id"), {'user_id': user_id})
+            session.execute(text("UPDATE _user SET last_name = 'LostUpdate' WHERE user_id = :user_id"),
+                            {'user_id': user_id})
             session.commit()
             return jsonify({'message': 'Lost update issue demonstrated'}), 200
         else:
