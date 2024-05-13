@@ -13,6 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class UserService {
 
@@ -25,24 +29,35 @@ public class UserService {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
+    private List<User> fetchAllUsers() {
+        return userRepository.findAll();
+    }
+
     // dirty write - notice the isolation level set to read uncommitted
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    public void transaction1_dirty_write(Long userId) throws InterruptedException {
-        User user = userRepository.findById(userId).orElse(null);
+    public ResponseEntity<Map<String, Object>> transaction1_dirty_write(Long userId) throws InterruptedException {
+        Map<String, Object> response = new HashMap<>();
+        response.put("before", fetchAllUsers());  // Users before the transaction
 
+        User user = userRepository.findById(userId).orElse(null);
         if (user != null) {
             user.setFirstName("Jack");
             userRepository.save(user);
         }
 
-        Thread.sleep(5000); // delay for 5 seconds
+        response.put("during", fetchAllUsers());  // Users during the transaction, before Python call
 
-        // call the Python endpoint to perform a separate transaction that updates the first name of the same user
+        Thread.sleep(5000);  // Simulate delay
+
         String pythonUrl = "http://localhost:5000/dirty-write-python";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+        restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+
+        response.put("after", fetchAllUsers());  // Users after the Python call
+
+        return ResponseEntity.ok(response);
     }
 
     // after about a minute a lock timeout will appear that demonstrates the fact that by using locking mechanism,

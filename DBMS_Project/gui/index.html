@@ -4,227 +4,138 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fancy GUI</title>
-    <h1 class="header">Concurrency Issues - Explained & Exemplfied</h1>
+    <h1 class="header">Concurrency Issues - Explained & Exemplified</h1>
     <link rel="stylesheet" type="text/css" href="dbms-gui.css">
 </head>
 <body>
     <div class="button-container">
+        <!-- Dirty Write -->
         <div class="button-description-container">
             <div class="button-box">
-                <button class="styled-button" onclick="dirty_write()">Dirty Write</button>
+                User ID: <input type="text" id="userIdInput1" placeholder="Enter User ID" />
+                <button class="styled-button" onclick="dirty_write(getUserId('userIdInput1'))">Dirty Write</button>
                 <a href="javascript:void(0);" onclick="toggleDetails('dirty-write-details', 'dirty-write-toggle')" class="show-details" id="dirty-write-toggle">Show Details</a>
             </div>
             <div class="description-box">
                 <p id="dirty-write-details" class="details" style="display: none;">
-                    Occurs when two transactions concurrently attempt to update the same data item, 
-                    and one transaction overwrites the changes made by the other before either transaction commits.
-                    Transaction A begins and updates a record, setting a value of a column to 10.
-                    Before Transaction A commits or rolls back, Transaction B also starts and updates the same record,
-                    changing the value of the same column to 20. Transaction B commits its change. 
-                    Transaction A then commits its change, overwriting the update made by Transaction B with the old value 
-                    that Transaction A had initially set.
+                    Description of what happens during a Dirty Write.
                 </p>
             </div>
         </div>
 
+        <!-- Lost Update -->
         <div class="button-description-container">
             <div class="button-box">
-                <button class="styled-button" onclick="lost_update()">Lost Update</button>
+                User ID: <input type="text" id="userIdInput2" placeholder="Enter User ID" />
+                <button class="styled-button" onclick="lost_update(getUserId('userIdInput2'))">Lost Update</button>
                 <a href="javascript:void(0);" onclick="toggleDetails('lost-update-details', 'lost-update-toggle')" class="show-details" id="lost-update-toggle">Show Details</a>
             </div>
             <div class="description-box">
                 <p id="lost-update-details" class="details" style="display: none;">
-                    Occurs when two or more transactions simultaneously access the same data and then make updates 
-                    based on the initial read, which can result in one of the transactions' updates being overwritten by another. 
-                    Transaction A retrieves a row from the database to update a record, for example, the quantity of an item in inventory.
-                    Simultaneously, Transaction B retrieves the same row for the same item to update it based on a new shipment that just arrived.
-                    Transaction A updates the row based on its business logic (e.g., decreases the quantity due to a sale) and commits the change to the database.
-                    Shortly afterward, Transaction B updates the row based on a different set of logic (e.g., increases the quantity because of the new shipment) and commits. 
-                    However, Transaction B's update was based on the original data, not including the recent update from Transaction A.
+                    Description of what happens during a Lost Update.
                 </p>
             </div>
         </div>
 
+        <!-- Unrepeatable Reads -->
         <div class="button-description-container">
             <div class="button-box">
-                <button class="styled-button" onclick="unrepeatable_reads()">Unrepeatable Reads</button>
+                User ID: <input type="text" id="userIdInput3" placeholder="Enter User ID" />
+                <button class="styled-button" onclick="unrepeatable_reads(getUserId('userIdInput3'))">Unrepeatable Reads</button>
                 <a href="javascript:void(0);" onclick="toggleDetails('unrepeatable-reads-details', 'unrepeatable-reads-toggle')" class="show-details" id="unrepeatable-reads-toggle">Show Details</a>
             </div>
             <div>
                 <p id="unrepeatable-reads-details" class="details" style="display: none;">
-                    Occur in a database when a transaction reads the same row of data more than once and gets different values each time.
-                    Transaction A starts and reads a row from the Customers table to display a customer's profile information.
-                    While Transaction A is still in progress, Transaction B starts, updates the same customer's profile 
-                    (e.g., change of address), and commits the change.Transaction A, needing to verify some information, 
-                    reads the customer's profile again. This time, it retrieves the updated address that Transaction B committed, 
-                    which differs from what was originally read at the beginning of Transaction A.
+                    Description of what happens during Unrepeatable Reads.
                 </p>
             </div>
         </div>
 
+        <!-- Dirty Read -->
         <div class="button-description-container">
             <div class="button-box">
-                <button class="styled-button" onclick="dirty_read()">Dirty Read</button>
+                User ID: <input type="text" id="userIdInput4" placeholder="Enter User ID" />
+                <button class="styled-button" onclick="dirty_read(getUserId('userIdInput4'))">Dirty Read</button>
                 <a href="javascript:void(0);" onclick="toggleDetails('dirty-read-details', 'dirty-read-toggle')" class="show-details" id="dirty-read-toggle">Show Details</a>
             </div>
             <div>
                 <p id="dirty-read-details" class="details" style="display: none;">
-                    Occurs in database systems where a transaction reads data that has been modified by another transaction 
-                    but not yet committed. Transaction A starts and updates the balance of a bank account, increasing it 
-                    from $1,000 to $1,500. Before Transaction A commits or rolls back its changes, Transaction B reads the updated 
-                    balance of the same bank account. If Transaction A subsequently fails for some reason and rolls back its transaction, 
-                    the balance reverts to the original $1,000.However, Transaction B, which has already read the temporary balance 
-                    of $1,500, may make decisions based on incorrect data, thinking the account has more money than it actually does.
+                    Description of what happens during a Dirty Read.
                 </p>
             </div>
         </div>
 
+        <!-- Phantom Read -->
         <div class="button-description-container">
             <div class="button-box">
-                <button class="styled-button" onclick="phantom_read()">Phantom Read</button>
+                User ID: <input type="text" id="userIdInput5" placeholder="Enter User ID" />
+                <button class="styled-button" onclick="phantom_read(getUserId('userIdInput5'))">Phantom Read</button>
                 <a href="javascript:void(0);" onclick="toggleDetails('phantom-read-details', 'phantom-read-toggle')" class="show-details" id="phantom-read-toggle">Show Details</a>
             </div>
             <div>
                 <p id="phantom-read-details" class="details" style="display: none;">
-                    Occur in database systems when a transaction reads a set of rows that satisfy a certain condition, 
-                    and then finds that the set of rows satisfying the condition has changed in a subsequent read within 
-                    the same transaction. Transaction A begins and executes a query to find all orders placed in the last week. 
-                    It finds, for example, 10 orders. While Transaction A is still in progress, Transaction B starts and inserts 
-                    a new order that also fits the criteria of orders placed in the last week. Transaction A, still active, 
-                    repeats its initial query to find all orders from the last week and this time finds 11 orders, 
-                    including the new order added by Transaction B.
+                    Description of what happens during a Phantom Read.
                 </p>
             </div>
         </div>
     </div>
 
     <script>
-        async function dirty_write() {
-            try {
-
-                const requestBody = { user_id: 1 };
-
-                const requests = [
-                    fetch('http://localhost:8060/concurrency-issues-java/transaction1-dirty-write?userId=1', {
-                        method: 'POST'
-                    })
-                ];
-
-                const responses = await Promise.all(requests);
-
-                for (const response of responses) {
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log(data);
-                    } else {
-                        console.error(`Request failed with status ${response.status}`);
-                    }
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
+        function getUserId(inputId) {
+            return document.getElementById(inputId).value;
         }
 
-        async function lost_update() {
-            try {
-
-                const requestBody = { user_id: 1 };
-
-                const requests = [
-                    fetch('http://localhost:8060/concurrency-issues-java/transaction1-lost-update?userId=1', {
-                        method: 'POST'
-                    })
-                ];
-
-                const responses = await Promise.all(requests);
-
-                for (const response of responses) {
-                    console.log("Raw response:", response); // Log the raw response object
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log(data);
-                    } else {
-                        console.error(`Request failed with status ${response.status}`);
-                    }
-                }
-            } catch (error) {
-                console.error('Error:', error);
+        async function dirty_write(userId) {
+            if (!userId) {
+                alert('Please enter a User ID for Dirty Write.');
+                return;
             }
+            performRequest(userId, 'transaction1-dirty-write');
         }
 
-        async function unrepeatable_reads() {
-            try {
-
-                const requestBody = { workout_id: 1 };
-
-                const requests = [
-                    fetch('http://localhost:8060/concurrency-issues-java/transaction1-unrepeatable-reads?workoutId=1', {
-                        method: 'POST'
-                    })
-                ];
-
-                const responses = await Promise.all(requests);
-
-                for (const response of responses) {
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log(data);
-                    } else {
-                        console.error(`Request failed with status ${response.status}`);
-                    }
-                }
-            } catch (error) {
-                console.error('Error:', error);
+        async function lost_update(userId) {
+            if (!userId) {
+                alert('Please enter a User ID for Lost Update.');
+                return;
             }
+            performRequest(userId, 'transaction1-lost-update');
         }
 
-        async function dirty_read() {
-            try {
-
-                const requestBody = { exercise_id: 1 };
-
-                const requests = [
-                    fetch('http://localhost:8060/concurrency-issues-java/transaction1-dirty-read?exerciseId=1', {
-                        method: 'POST'
-                    })
-                ];
-
-                const responses = await Promise.all(requests);
-
-                for (const response of responses) {
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log(data);
-                    } else {
-                        console.error(`Request failed with status ${response.status}`);
-                    }
-                }
-            } catch (error) {
-                console.error('Error:', error);
+        async function unrepeatable_reads(userId) {
+            if (!userId) {
+                alert('Please enter a User ID for Unrepeatable Reads.');
+                return;
             }
+            performRequest(userId, 'transaction1-unrepeatable-reads');
         }
 
-        async function phantom_read() {
+        async function dirty_read(userId) {
+            if (!userId) {
+                alert('Please enter a User ID for Dirty Read.');
+                return;
+            }
+            performRequest(userId, 'transaction1-dirty-read');
+        }
+
+        async function phantom_read(userId) {
+            if (!userId) {
+                alert('Please enter a User ID for Phantom Read.');
+                return;
+            }
+            performRequest(userId, 'transaction1-phantom-read');
+        }
+
+        async function performRequest(userId, endpoint) {
             try {
+                const response = await fetch(`http://localhost:8060/concurrency-issues-java/${endpoint}?userId=${userId}`, {
+                    method: 'POST'
+                });
 
-                const requestBody = { exercise_id: 1 };
-
-                const requests = [
-                    fetch('http://localhost:8060/concurrency-issues-java/transaction1-phantom-read?exerciseId=1', {
-                        method: 'POST'
-                    })
-                ];
-
-                const responses = await Promise.all(requests);
-
-                for (const response of responses) {
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log(data);
-                    } else {
-                        console.error(`Request failed with status ${response.status}`);
-                    }
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                } else {
+                    console.error(`Request failed with status ${response.status}`);
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -243,7 +154,6 @@
                 toggleText.textContent = "Show Details";
             }
         }
-
     </script>
 </body>
 </html>

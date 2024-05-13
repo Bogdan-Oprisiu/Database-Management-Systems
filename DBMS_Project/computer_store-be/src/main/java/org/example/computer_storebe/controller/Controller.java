@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/concurrency-issues-java")
 public class Controller {
@@ -22,9 +24,8 @@ public class Controller {
 //    private ExerciseService exerciseService;
 //
     @PostMapping("/transaction1-dirty-write")
-    public ResponseEntity<String> transaction1_dirty_write(@RequestParam Long userId) throws InterruptedException {
-        userService.transaction1_dirty_write(userId);
-        return ResponseEntity.ok("Transaction 1 completed successfully");
+        public ResponseEntity<Map<String, Object>> transaction1_dirty_write(@RequestParam Long userId) throws InterruptedException {
+        return userService.transaction1_dirty_write(userId);
     }
 
     @PostMapping("/transaction1-lost-update")

@@ -12,7 +12,7 @@ engine = create_engine(DATABASE_URI)
 Session = sessionmaker(bind=engine)
 
 
-@app.route('/dirty-write', methods=['POST'])
+@app.route('/dirty-write-python', methods=['POST'])
 def dirty_write():
     session = Session()
     user_id = request.json.get('user_id')
@@ -29,19 +29,25 @@ def dirty_write():
         session.close()
 
 
-@app.route('/lost-update', methods=['POST'])
+@app.route('/lost-update-python', methods=['POST'])
 def lost_update():
     session = Session()
     user_id = request.json.get('user_id')
     try:
-        # Simulate a delay to create a lost update scenario
-        user = session.execute(text("SELECT * FROM _user WHERE user_id = :user_id FOR UPDATE"),
-                               {'user_id': user_id}).fetchone()
-        time.sleep(5)
-        session.execute(text("UPDATE _user SET last_name = 'LostUpdate' WHERE user_id = :user_id"),
-                        {'user_id': user_id})
-        session.commit()
-        return jsonify({'message': 'Lost update issue demonstrated'}), 200
+        # Start transaction
+        session.begin()
+        # Lock the row to prevent other transactions from modifying it concurrently
+        user = session.execute(text("SELECT * FROM _user WHERE user_id = :user_id FOR UPDATE"), {'user_id': user_id}).fetchone()
+        if user:
+            # Simulate processing time
+            time.sleep(5)
+            # Update the user
+            session.execute(text("UPDATE _user SET last_name = 'LostUpdate' WHERE user_id = :user_id"), {'user_id': user_id})
+            session.commit()
+            return jsonify({'message': 'Lost update issue demonstrated'}), 200
+        else:
+            session.rollback()
+            return jsonify({'error': 'User not found'}), 404
     except Exception as e:
         session.rollback()
         return jsonify({'error': str(e)}), 500
@@ -49,7 +55,8 @@ def lost_update():
         session.close()
 
 
+
 # Additional routes for other concurrency issues can be added in a similar fashion
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8060)
+    app.run(debug=True, port=5000)
