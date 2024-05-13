@@ -105,7 +105,7 @@
                 const requestBody = { user_id: 1 };
 
                 const requests = [
-                    fetch('http://localhost:8080/concurrency-issues-java/transaction1-dirty-write?userId=1', {
+                    fetch('http://localhost:8060/concurrency-issues-java/transaction1-dirty-write?userId=1', {
                         method: 'POST'
                     })
                 ];
@@ -117,7 +117,7 @@
                         const data = await response.json();
                         console.log(data);
                     } else {
-                        console.error("Request failed with status ${response.status}");
+                        console.error(`Request failed with status ${response.status}`);
                     }
                 }
             } catch (error) {
@@ -131,7 +131,7 @@
                 const requestBody = { user_id: 1 };
 
                 const requests = [
-                    fetch('http://localhost:8080/concurrency-issues-java/transaction1-lost-update?userId=1', {
+                    fetch('http://localhost:8060/concurrency-issues-java/transaction1-lost-update?userId=1', {
                         method: 'POST'
                     })
                 ];
@@ -139,11 +139,13 @@
                 const responses = await Promise.all(requests);
 
                 for (const response of responses) {
+                    console.log("Raw response:", response); // Log the raw response object
+
                     if (response.ok) {
                         const data = await response.json();
                         console.log(data);
                     } else {
-                        console.error("Request failed with status ${response.status}");
+                        console.error(`Request failed with status ${response.status}`);
                     }
                 }
             } catch (error) {
@@ -157,7 +159,7 @@
                 const requestBody = { workout_id: 1 };
 
                 const requests = [
-                    fetch('http://localhost:8080/concurrency-issues-java/transaction1-unrepeatable-reads?workoutId=1', {
+                    fetch('http://localhost:8060/concurrency-issues-java/transaction1-unrepeatable-reads?workoutId=1', {
                         method: 'POST'
                     })
                 ];
@@ -169,7 +171,7 @@
                         const data = await response.json();
                         console.log(data);
                     } else {
-                        console.error("Request failed with status ${response.status}");
+                        console.error(`Request failed with status ${response.status}`);
                     }
                 }
             } catch (error) {
@@ -183,7 +185,7 @@
                 const requestBody = { exercise_id: 1 };
 
                 const requests = [
-                    fetch('http://localhost:8080/concurrency-issues-java/transaction1-dirty-read?exerciseId=1', {
+                    fetch('http://localhost:8060/concurrency-issues-java/transaction1-dirty-read?exerciseId=1', {
                         method: 'POST'
                     })
                 ];
@@ -195,7 +197,7 @@
                         const data = await response.json();
                         console.log(data);
                     } else {
-                        console.error("Request failed with status ${response.status}");
+                        console.error(`Request failed with status ${response.status}`);
                     }
                 }
             } catch (error) {
@@ -209,7 +211,7 @@
                 const requestBody = { exercise_id: 1 };
 
                 const requests = [
-                    fetch('http://localhost:8080/concurrency-issues-java/transaction1-phantom-read?exerciseId=1', {
+                    fetch('http://localhost:8060/concurrency-issues-java/transaction1-phantom-read?exerciseId=1', {
                         method: 'POST'
                     })
                 ];
@@ -221,7 +223,7 @@
                         const data = await response.json();
                         console.log(data);
                     } else {
-                        console.error("Request failed with status ${response.status}");
+                        console.error(`Request failed with status ${response.status}`);
                     }
                 }
             } catch (error) {

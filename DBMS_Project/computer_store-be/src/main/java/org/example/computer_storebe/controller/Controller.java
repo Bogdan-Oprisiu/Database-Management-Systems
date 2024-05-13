@@ -30,7 +30,7 @@ public class Controller {
     @PostMapping("/transaction1-lost-update")
     public ResponseEntity<String> transaction1_lost_update(@RequestParam Long userId) throws InterruptedException {
         userService.transaction1_lost_update(userId);
-        return ResponseEntity.ok("Transaction 1 completed successfully");
+        return ResponseEntity.ok().body("{\"message\":\"Transaction 1 completed successfully\"}");
     }
 
 //
@@ -52,25 +52,25 @@ public class Controller {
 //        exerciseService.transaction1_phantom_read();
 //        return ResponseEntity.ok("Transaction 1 completed successfully");
 //    }
-//
-//    @PostMapping("/transaction1-dirty-write-locking")
-//    public ResponseEntity<String> transaction1_dirty_write_locking(@RequestParam Integer userId) throws InterruptedException {
-//        userService.transaction1_dirty_write_locking(userId);
-//        return ResponseEntity.ok("Transaction 1 completed successfully");
-//    }
-//
+
+    @PostMapping("/transaction1-dirty-write-locking")
+    public ResponseEntity<String> transaction1_dirty_write_locking(@RequestParam Long userId) throws InterruptedException {
+        userService.transaction1_dirty_write_locking(userId);
+        return ResponseEntity.ok("Transaction 1 completed successfully");
+    }
+
 //    @PostMapping("/transaction1-unrepeatable-reads-locking")
 //    public ResponseEntity<String> transaction1_unrepeatable_reads_locking(@RequestParam Integer workoutId) throws InterruptedException {
 //        workoutService.transaction1_unrepeatable_reads_locking(workoutId);
 //        return ResponseEntity.ok("Transaction 1 completed successfully");
 //    }
-//
+
 //    @PostMapping("/transaction1-dirty-read-locking")
 //    public ResponseEntity<String> transaction1_dirty_read_locking(@RequestParam Integer exerciseId) throws InterruptedException {
 //        exerciseService.transaction1_dirty_read_locking(exerciseId);
 //        return ResponseEntity.ok("Transaction 1 completed successfully");
 //    }
-//
+
 //    @PostMapping("/transaction1-phantom-read-locking")
 //    public ResponseEntity<String> transaction1_phantom_read_locking() {
 //        exerciseService.transaction1_phantom_read_locking();

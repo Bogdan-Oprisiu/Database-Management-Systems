@@ -81,10 +81,10 @@ public class UserService {
             });
         }
 
-        Thread.sleep(5000);
-
         // call the Python endpoint to perform the second transaction
         String pythonUrl = "http://localhost:5000/lost-update-python";
+
+        Thread.sleep(5000);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
