@@ -35,6 +35,46 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public void callPythonDirtyWrite(Long userId) {
+        String pythonUrl = "http://localhost:5000/dirty-write-python";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
+        restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+    }
+
+    public void callPythonLostUpdate(Long userId) {
+        String pythonUrl = "http://localhost:5000/lost-update-python";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
+        restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+    }
+
+    public void callPythonUnrepeatableReads(Long userId){
+        String pythonUrl = "http://localhost:5000/simulate-update";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
+        restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+    }
+
+    public void callDirtyRead(Long userId){
+        String pythonUrl = "http://localhost:5000/simulate-update";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
+        restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+    }
+
+    public void callPhantomRead(Long userId){
+        String pythonUrl = "http://localhost:5000/simulate-update";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
+        restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+    }
+
     // dirty write - notice the isolation level set to read uncommitted
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public User transaction1_dirty_write(Long userId) throws InterruptedException {
@@ -43,25 +83,18 @@ public class UserService {
             user.setLastName("Sparrrrrow");
             userRepository.save(user);
             Thread.sleep(5000); // Simulate delay
-
-            String pythonUrl = "http://localhost:5000/dirty-write-python";
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
-            restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+            callPythonDirtyWrite(userId);
         }
         return userRepository.findById(userId).orElse(null);
     }
 
-    // after about a minute a lock timeout will appear that demonstrates the fact that by using locking mechanism,
-    // the database was able to prevent a dirty write from happening
     @Transactional(isolation = Isolation.SERIALIZABLE, timeout = 10, propagation = Propagation.REQUIRES_NEW)
     public User transaction1_dirty_write_locking(Long userId) throws InterruptedException {
         User user = userRepository.findById(userId).orElse(null); // Using the locking method
         if (user != null) {
             user.setLastName("Sparrrrrow");
             userRepository.save(user);
-            Thread.sleep(5000); // Simulate delay
+            Thread.sleep(1000 * 60); // Simulate delay
 
             String pythonUrl = "http://localhost:5000/dirty-write-python";
             HttpHeaders headers = new HttpHeaders();
@@ -72,7 +105,7 @@ public class UserService {
             restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
         }
 
-        return userRepository.findByIdForUpdate(userId).orElse(null); // Check the result after the transaction
+        return userRepository.findByIdWithLocking(userId).orElse(null); // Check the result after the transaction
     }
 
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -90,11 +123,7 @@ public class UserService {
             // Simulate delay before calling Python
             Thread.sleep(5000);
 
-            String pythonUrl = "http://localhost:5000/lost-update-python";
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
-            restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+            callPythonLostUpdate(userId);
 
             Optional<User> userAfterUpdate = userRepository.findById(userId);
             Map<String, String> result = new HashMap<>();
@@ -106,6 +135,7 @@ public class UserService {
         }
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE, timeout = 10, propagation = Propagation.REQUIRES_NEW)
     public Map<String, String> transaction1_lost_update_locking(Long userId) throws InterruptedException {
         Optional<User> userBeforeUpdate = userRepository.findById(userId);
 
@@ -118,7 +148,7 @@ public class UserService {
             });
 
             // Simulate delay before calling Python
-            Thread.sleep(5000);
+            Thread.sleep(1000 * 60);
 
             String pythonUrl = "http://localhost:5000/lost-update-python";
             HttpHeaders headers = new HttpHeaders();
@@ -126,7 +156,7 @@ public class UserService {
             HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
             restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
 
-            Optional<User> userAfterUpdate = userRepository.findByIdForUpdate(userId);
+            Optional<User> userAfterUpdate = userRepository.findByIdWithLocking(userId);
             Map<String, String> result = new HashMap<>();
             result.put("beforeUpdate", userBeforeUpdate.get().getLastName());
             result.put("afterUpdate", userAfterUpdate.isPresent() ? userAfterUpdate.get().getLastName() : "Not found");
@@ -134,5 +164,92 @@ public class UserService {
         } else {
             return Collections.singletonMap("error", "User not found");
         }
+    }
+
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    public User transaction1_unrepeatable_reads(Long userId) throws InterruptedException {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null) {
+            Thread.sleep(5000); // Simulate delay
+            callPythonDirtyWrite(userId);
+        }
+        return userRepository.findById(userId).orElse(null);
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE, timeout = 10, propagation = Propagation.REQUIRES_NEW)
+    public Map<String, String> transaction1_unrepeatable_reads_locking(Long userId) throws InterruptedException {
+        Map<String, String> results = new HashMap<>();
+        Optional<User> firstRead = userRepository.findById(userId);
+        results.put("firstRead", firstRead.map(User::toString).orElse("User not found"));
+
+        // Call the Python endpoint to modify the data
+        String pythonUrl = "http://localhost:5000/simulate-update";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
+        restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+        Thread.sleep(1000 * 60);
+
+        Optional<User> finalRead = userRepository.findByIdWithLocking(userId);
+        results.put("finalRead", finalRead.map(User::toString).orElse("User not found"));
+        return results;
+    }
+
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    public User transaction1_dirty_read(Long userId) throws InterruptedException {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null) {
+            Thread.sleep(5000); // Simulate delay
+            callPythonDirtyWrite(userId);
+        }
+        return userRepository.findById(userId).orElse(null);
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE, timeout = 10, propagation = Propagation.REQUIRES_NEW)
+    public Map<String, String> transaction1_dirty_read_locking(Long userId) throws InterruptedException {
+        Map<String, String> results = new HashMap<>();
+        Optional<User> firstRead = userRepository.findById(userId);
+        results.put("firstRead", firstRead.map(User::toString).orElse("User not found"));
+
+        // Call the Python endpoint to modify the data
+        String pythonUrl = "http://localhost:5000/simulate-update";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
+        restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+        Thread.sleep(1000 * 60);
+
+        Optional<User> finalRead = userRepository.findByIdWithLocking(userId);
+        results.put("finalRead", finalRead.map(User::toString).orElse("User not found"));
+        return results;
+    }
+
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    public User transaction1_phantom_read(Long userId) throws InterruptedException {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null) {
+            Thread.sleep(5000); // Simulate delay
+            callPythonDirtyWrite(userId);
+        }
+        return userRepository.findById(userId).orElse(null);
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE, timeout = 10, propagation = Propagation.REQUIRES_NEW)
+    public Map<String, String> transaction1_phantom_read_locking(Long userId) throws InterruptedException {
+        Map<String, String> results = new HashMap<>();
+        Optional<User> firstRead = userRepository.findById(userId);
+        results.put("firstRead", firstRead.map(User::toString).orElse("User not found"));
+
+        // Call the Python endpoint to modify the data
+        String pythonUrl = "http://localhost:5000/simulate-update";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
+        restTemplate.postForEntity(pythonUrl, requestEntity, String.class);
+        Thread.sleep(1000 * 60);
+
+        Optional<User> finalRead = userRepository.findByIdWithLocking(userId);
+        results.put("finalRead", finalRead.map(User::toString).orElse("User not found"));
+        return results;
     }
 }

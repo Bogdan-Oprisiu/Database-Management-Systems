@@ -1,6 +1,8 @@
 package org.example.computer_storebe.controller;
 
+import lombok.val;
 import org.example.computer_storebe.entity.User;
+import org.example.computer_storebe.repository.UserRepository;
 import org.example.computer_storebe.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +21,17 @@ public class Controller {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository users;
+
     @PostMapping("/transaction1-dirty-write")
     public ResponseEntity<String> transaction1_dirty_write(@RequestParam Long userId) throws InterruptedException {
         // Fetch data before the transaction
         Optional<User> userBefore = userService.fetchUser(userId);
         String before = "Before Transaction: " + (userBefore.isPresent() ? userBefore.get().toString() : "User not found");
+
+        if(userBefore.isEmpty())
+            return ResponseEntity.ok("User not found");
 
         // Perform the transaction and get data during the transaction
         User userDuring = userService.transaction1_dirty_write(userId);
@@ -36,6 +44,7 @@ public class Controller {
 
         // Combine all into one response
         String response = "{ \"before\": \"" + before + "\", \"during\": \"" + during + "\", \"after\": \"" + after + "\" }";
+        users.save(userBefore.get());
 
         return ResponseEntity.ok(response);
     }
@@ -58,42 +67,108 @@ public class Controller {
         return ResponseEntity.ok(result);
     }
 
-//
-//    @PostMapping("/transaction1-unrepeatable-reads")
-//    public ResponseEntity<String> transaction1_unrepeatable_reads(@RequestParam Integer workoutId) throws InterruptedException {
-//        workoutService.transaction1_unrepeatable_reads(workoutId);
-//        return ResponseEntity.ok("Transaction 1 completed successfully");
-//    }
-//
-//    @PostMapping("/transaction1-dirty-read")
-//    public ResponseEntity<String> transaction1_dirty_read(@RequestParam Integer exerciseId) throws InterruptedException {
-//        exerciseService.transaction1_dirty_read(exerciseId);
-//        return ResponseEntity.ok("Transaction 1 completed successfully");
-//    }
-//
-//
-//    @PostMapping("/transaction1-phantom-read")
-//    public ResponseEntity<String> transaction1_phantom_read() {
-//        exerciseService.transaction1_phantom_read();
-//        return ResponseEntity.ok("Transaction 1 completed successfully");
-//    }
+    @PostMapping("/transaction1-unrepeatable-reads")
+    public ResponseEntity<String> handleUnrepeatableReads(@RequestParam Long userId) throws InterruptedException {
+        // Fetch data before the transaction
+        Optional<User> userBefore = userService.fetchUser(userId);
 
-//    @PostMapping("/transaction1-unrepeatable-reads-locking")
-//    public ResponseEntity<String> transaction1_unrepeatable_reads_locking(@RequestParam Integer workoutId) throws InterruptedException {
-//        workoutService.transaction1_unrepeatable_reads_locking(workoutId);
-//        return ResponseEntity.ok("Transaction 1 completed successfully");
-//    }
+        if(userBefore.isEmpty()) {
+            return ResponseEntity.ok("User not found");
+        }
 
-//    @PostMapping("/transaction1-dirty-read-locking")
-//    public ResponseEntity<String> transaction1_dirty_read_locking(@RequestParam Integer exerciseId) throws InterruptedException {
-//        exerciseService.transaction1_dirty_read_locking(exerciseId);
-//        return ResponseEntity.ok("Transaction 1 completed successfully");
-//    }
+        String before = "Before Transaction: " + (userBefore.isPresent() ? userBefore.get().toString() : "User not found");
 
-//    @PostMapping("/transaction1-phantom-read-locking")
-//    public ResponseEntity<String> transaction1_phantom_read_locking() {
-//        exerciseService.transaction1_phantom_read_locking();
-//        return ResponseEntity.ok("Transaction 1 completed successfully");
-//    }
+        // Perform the transaction and get data during the transaction
+        User userDuring = userService.transaction1_unrepeatable_reads(userId);
+        String during = "During Transaction: " + (userDuring != null ? userDuring.toString() : "User not found");
 
+        // Wait to ensure Python side effects are visible and fetch data after the transaction
+        Thread.sleep(5000); // Wait to ensure the Python script effects
+        Optional<User> userAfter = userService.fetchUser(userId);
+        String after = "After Transaction: " + (userAfter.isPresent() ? userAfter.get().toString() : "User not found");
+        var u = userBefore.get();
+        u.setLastName("Doe");
+        users.save(u);
+
+        // Combine all into one response
+        String response = "{ \"before\": \"" + before + "\", \"during\": \"" + during + "\", \"after\": \"" + after + "\" }";
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/transaction1-unrepeatable-reads-locking")
+    public ResponseEntity<Map<String, String>> handleUnrepeatableReads_locking(@RequestParam Long userId) throws InterruptedException {
+        Map<String, String> result = userService.transaction1_unrepeatable_reads_locking(userId);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/transaction1-dirty-read")
+    public ResponseEntity<String> handleDirtyReads(@RequestParam Long userId) throws InterruptedException {
+        // Fetch data before the transaction
+        Optional<User> userBefore = userService.fetchUser(userId);
+
+        if(userBefore.isEmpty()) {
+            return ResponseEntity.ok("User not found");
+        }
+        var u = userBefore.get();
+        u.setLastName("Doe");
+
+        String before = "Before Transaction: " + (userBefore.isPresent() ? userBefore.get().toString() : "User not found");
+
+        // Perform the transaction and get data during the transaction
+        User userDuring = userService.transaction1_dirty_read(userId);
+        String during = "During Transaction: " + (userDuring != null ? userDuring.toString() : "User not found");
+
+        // Wait to ensure Python side effects are visible and fetch data after the transaction
+        Thread.sleep(5000); // Wait to ensure the Python script effects
+        Optional<User> userAfter = userService.fetchUser(userId);
+        String after = "After Transaction: " + (userAfter.isPresent() ? userAfter.get().toString() : "User not found");
+        users.save(u);
+
+        // Combine all into one response
+        String response = "{ \"before\": \"" + before + "\", \"during\": \"" + during + "\", \"after\": \"" + after + "\" }";
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/transaction1-dirty-read-locking")
+    public ResponseEntity<Map<String, String>> handleDirtyRead_locking(@RequestParam Long userId) throws InterruptedException {
+        Map<String, String> result = userService.transaction1_dirty_read_locking(userId);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/transaction1-phantom-read")
+    public ResponseEntity<String> handlePhantomReads(@RequestParam Long userId) throws InterruptedException {
+        // Fetch data before the transaction
+        Optional<User> userBefore = userService.fetchUser(userId);
+
+        if(userBefore.isEmpty()) {
+            return ResponseEntity.ok("User not found");
+        }
+        var u = userBefore.get();
+        u.setLastName("Doe");
+
+        String before = "Before Transaction: " + (userBefore.isPresent() ? userBefore.get().toString() : "User not found");
+
+        // Perform the transaction and get data during the transaction
+        User userDuring = userService.transaction1_phantom_read(userId);
+        String during = "During Transaction: " + (userDuring != null ? userDuring.toString() : "User not found");
+
+        // Wait to ensure Python side effects are visible and fetch data after the transaction
+        Thread.sleep(5000); // Wait to ensure the Python script effects
+        Optional<User> userAfter = userService.fetchUser(userId);
+        String after = "After Transaction: " + (userAfter.isPresent() ? userAfter.get().toString() : "User not found");
+        users.save(u);
+
+        // Combine all into one response
+        String response = "{ \"before\": \"" + before + "\", \"during\": \"" + during + "\", \"after\": \"" + after + "\" }";
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/transaction1-phantom-read-locking")
+    public ResponseEntity<Map<String, String>> handlePhantomRead_locking(@RequestParam Long userId) throws InterruptedException {
+        Map<String, String> result = userService.transaction1_phantom_read_locking(userId);
+        return ResponseEntity.ok(result);
+    }
 }
