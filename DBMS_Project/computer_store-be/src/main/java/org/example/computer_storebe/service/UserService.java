@@ -85,8 +85,8 @@ public class UserService {
         if (user != null) {
             user.setLastName("Sparrrrrow");
             userRepository.save(user);
-            Thread.sleep(5000); // Simulate delay
             callPythonDirtyWrite(userId);
+            Thread.sleep(1000); // Simulate delay
         }
         return userRepository.findById(userId).orElse(null);
     }
@@ -97,7 +97,7 @@ public class UserService {
         if (user != null) {
             user.setLastName("Sparrrrrow");
             userRepository.save(user);
-            Thread.sleep(1000 * 60); // Simulate delay
+            Thread.sleep(1000); // Simulate delay
 
             String pythonUrl = url + "/dirty-write-python";
             HttpHeaders headers = new HttpHeaders();
@@ -151,7 +151,7 @@ public class UserService {
             });
 
             // Simulate delay before calling Python
-            Thread.sleep(1000 * 60);
+            Thread.sleep(1000);
 
             String pythonUrl = url + "/lost-update-python";
             HttpHeaders headers = new HttpHeaders();
