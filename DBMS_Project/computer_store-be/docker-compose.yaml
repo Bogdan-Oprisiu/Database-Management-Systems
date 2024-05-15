@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  spring-app:
+    build:
+      context: C:\Uni\Database Management Systems\DBMS_Project\computer_store-be
+      dockerfile: Dockerfile
+    ports:
+      - "8060:8060"
+    networks:
+      - app-network
+
+  flask-app:
+    build:
+      context: C:\Uni\Database Management Systems\DBMS_Project\dbms-python
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+
+  postgres-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: computer_store
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: bogdan123
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:

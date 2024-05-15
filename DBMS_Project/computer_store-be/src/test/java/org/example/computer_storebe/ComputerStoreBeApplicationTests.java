@@ -1,7 +1,7 @@
 package org.example.computer_storebe;
 
-import org.example.computer_storebe.entity.computer.Computer;
-import org.example.computer_storebe.entity.computer.OperatingSystem;
+import org.example.computer_storebe.entity.Computer;
+import org.example.computer_storebe.entity.OperatingSystem;
 import org.example.computer_storebe.repository.computer.ComputerRepository;
 import org.example.computer_storebe.repository.computer.OperatingSystemRepository;
 import org.junit.jupiter.api.Test;

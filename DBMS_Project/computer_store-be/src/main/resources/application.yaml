@@ -2,7 +2,8 @@ spring:
   application:
     name: computer_store-be
   datasource:
-    url: jdbc:postgresql://localhost:5432/computer_store
+    url: jdbc:postgresql://postgres-db:5432/computer_store
+    #change localhost to postgres-db when running in docker
     username: postgres
     password: bogdan123
     driver-class-name: org.postgresql.Driver
@@ -14,5 +15,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  sql:
+    init:
+      schema-locations: classpath*:schema.sql
+      data-locations: classpath*:data.sql
+      mode: always # Enables automatic execution of schema.sql and data.sql on startup
+
 server:
   port: 8060

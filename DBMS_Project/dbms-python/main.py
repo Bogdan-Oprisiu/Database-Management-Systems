@@ -7,7 +7,8 @@ from sqlalchemy.orm import sessionmaker
 app = Flask(__name__)
 
 # Database setup
-DATABASE_URI = 'postgresql://postgres:bogdan123@localhost/computer_store'
+DATABASE_URI = 'postgresql://postgres:bogdan123@postgres-db/computer_store'
+# DATABASE_URI = 'postgresql://postgres:bogdan123@localhost/computer_store'
 engine = create_engine(DATABASE_URI)
 Session = sessionmaker(bind=engine)
 
@@ -69,4 +70,4 @@ def simulate_update():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=5000)

@@ -39,14 +39,6 @@ CREATE TABLE computer (
     CONSTRAINT fk_category_id FOREIGN KEY (category_id) REFERENCES computer_category(id)
 );
 
--- CREATE TYPE Address AS (
---     number INT,
---     street VARCHAR(255),
---     city VARCHAR(100),
---     state VARCHAR(100),
---     postal_code VARCHAR(20)
--- );
-
 CREATE TABLE _order (
     id SERIAL PRIMARY KEY,
     order_date DATE,

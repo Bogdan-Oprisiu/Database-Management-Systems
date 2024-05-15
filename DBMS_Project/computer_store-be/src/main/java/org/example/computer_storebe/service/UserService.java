@@ -18,6 +18,9 @@ import java.util.*;
 @Service
 public class UserService {
 
+    private final String url = "http://flask-app:5000";
+//    private final String url = "http://localhost:5000";
+
     @Autowired
     private UserRepository userRepository;
 
@@ -36,7 +39,7 @@ public class UserService {
     }
 
     public void callPythonDirtyWrite(Long userId) {
-        String pythonUrl = "http://localhost:5000/dirty-write-python";
+        String pythonUrl = url + "/dirty-write-python";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
@@ -44,7 +47,7 @@ public class UserService {
     }
 
     public void callPythonLostUpdate(Long userId) {
-        String pythonUrl = "http://localhost:5000/lost-update-python";
+        String pythonUrl = url + "/lost-update-python";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
@@ -52,7 +55,7 @@ public class UserService {
     }
 
     public void callPythonUnrepeatableReads(Long userId){
-        String pythonUrl = "http://localhost:5000/simulate-update";
+        String pythonUrl = url + "/simulate-update";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
@@ -60,7 +63,7 @@ public class UserService {
     }
 
     public void callDirtyRead(Long userId){
-        String pythonUrl = "http://localhost:5000/simulate-update";
+        String pythonUrl = url + "/simulate-update";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
@@ -68,7 +71,7 @@ public class UserService {
     }
 
     public void callPhantomRead(Long userId){
-        String pythonUrl = "http://localhost:5000/simulate-update";
+        String pythonUrl = url + "/simulate-update";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
@@ -96,7 +99,7 @@ public class UserService {
             userRepository.save(user);
             Thread.sleep(1000 * 60); // Simulate delay
 
-            String pythonUrl = "http://localhost:5000/dirty-write-python";
+            String pythonUrl = url + "/dirty-write-python";
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
@@ -150,7 +153,7 @@ public class UserService {
             // Simulate delay before calling Python
             Thread.sleep(1000 * 60);
 
-            String pythonUrl = "http://localhost:5000/lost-update-python";
+            String pythonUrl = url + "/lost-update-python";
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
@@ -183,7 +186,7 @@ public class UserService {
         results.put("firstRead", firstRead.map(User::toString).orElse("User not found"));
 
         // Call the Python endpoint to modify the data
-        String pythonUrl = "http://localhost:5000/simulate-update";
+        String pythonUrl = url + "/simulate-update";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
@@ -212,7 +215,7 @@ public class UserService {
         results.put("firstRead", firstRead.map(User::toString).orElse("User not found"));
 
         // Call the Python endpoint to modify the data
-        String pythonUrl = "http://localhost:5000/simulate-update";
+        String pythonUrl = url + "/simulate-update";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
@@ -241,7 +244,7 @@ public class UserService {
         results.put("firstRead", firstRead.map(User::toString).orElse("User not found"));
 
         // Call the Python endpoint to modify the data
-        String pythonUrl = "http://localhost:5000/simulate-update";
+        String pythonUrl = url + "/simulate-update";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>("{\"user_id\": " + userId + "}", headers);
