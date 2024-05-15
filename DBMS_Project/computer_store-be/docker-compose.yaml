@@ -29,21 +29,6 @@ services:
       - "5432:5432"
     networks:
       - app-network
-#    command:
-#      - sh
-#      - -c
-#      - |
-#        echo "listen_addresses = '*'" >> /usr/share/postgresql/postgresql.conf.sample && \
-#        echo "wal_level = replica" >> /usr/share/postgresql/postgresql.conf.sample && \
-#        echo "max_wal_senders = 10" >> /usr/share/postgresql/postgresql.conf.sample && \
-#        echo "wal_keep_segments = 64" >> /usr/share/postgresql/postgresql.conf.sample && \
-#        echo "hot_standby = on" >> /usr/share/postgresql/postgresql.conf.sample && \
-#        postgres -c config_file=/usr/share/postgresql/postgresql.conf.sample
-#    healthcheck:
-#      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
 
   postgres-db-2:
     image: postgres:latest
@@ -56,18 +41,6 @@ services:
       - "5433:5432"
     networks:
       - app-network
-#    command:
-#      - sh
-#      - -c
-#      - |
-#        echo "standby_mode = 'on'" >> /usr/share/postgresql/postgresql.conf.sample && \
-#        echo "primary_conninfo = 'host=postgres-db port=5432 user=postgres password=bogdan123'" >> /usr/share/postgresql/postgresql.conf.sample && \
-#        postgres -c config_file=/usr/share/postgresql/postgresql.conf.sample
-#    healthcheck:
-#      test: ["CMD-SHELL", "pg_isready -U postgres"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
 
 networks:
   app-network:
